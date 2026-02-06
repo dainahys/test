@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 앱 다운로드 프로모션 - 인터랙티브 프로토타입</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const App = () => {
+  const [screen, setScreen] = useState('web');
+  const [history, setHistory] = useState([]);
+  const logRef = useRef(null);
+
+  const [alreadyParticipated, setAlreadyParticipated] = useState(false);
+  const [consentAll, setConsentAll] = useState(true);
+  const [pushAuthStatus, setPushAuthStatus] = useState('authorized');
+  const [foregroundPushEnabled, setForegroundPushEnabled] = useState(true);
+  const [termsChecked, setTermsChecked] = useState({ marketing_info: false, marketing_message: false });
+
+  const addHistory = (action, type = 'action') => {
+    setHistory(prev => [...prev, { time: new Date().toLocaleTimeString(), action, type }]);
+  };
+
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [history]);
+
+  const reset = () => {
+    setScreen('web');
+    setAlreadyParticipated(false);
+    setConsentAll(true);
+    setPushAuthStatus('authorized');
+    setForegroundPushEnabled(true);
+    setTermsChecked({ marketing_info: false, marketing_message: false });
+    setHistory([]);
+  };
+
+  const PhoneFrame = ({ children }) => (
+    <div style={{ position: 'relative', margin: '0 auto', width: 375, height: 720 }}>
+      <div style={{ position: 'absolute', inset: -12, background: '#1a1a1a', borderRadius: 48, boxShadow: '0 25px 60px rgba(0,0,0,0.3), inset 0 0 0 2px rgba(255,255,255,0.1)' }} />
+      <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', width: 130, height: 28, background: '#1a1a1a', borderRadius: '0 0 18px 18px', zIndex: 10 }} />
+      <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 36, overflow: 'hidden', background: '#fff', zIndex: 5 }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  const EventBadge = ({ event, properties }) => (
+    <div style={{ margin: '8px 0', padding: '8px 10px', background: 'linear-gradient(135deg, #2d1b69, #1e1145)', borderRadius: 8, fontSize: 10, fontFamily: 'monospace', lineHeight: 1.5 }}>
+      <div style={{ color: '#a78bfa', fontWeight: 700, marginBottom: 2 }}>📤 {event}</div>
+      {Object.entries(properties).map(([k, v]) => (
+        <div key={k} style={{ color: '#94a3b8' }}>
+          <span style={{ color: '#67e8f9' }}>{k}</span>: <span style={{ color: '#fde68a' }}>{String(v)}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  const AppHeader = () => (
+    <div style={{ background: '#7c3aed', padding: '44px 16px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ width: 28, height: 28, background: 'rgba(255,255,255,0.2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 800 }}>숨</div>
+      <span style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>숨고</span>
+    </div>
+  );
+
+  // === 웹 ===
+  const WebScreen = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'linear-gradient(to bottom, #5b21b6, #7c3aed, #a855f7)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, color: '#fff', textAlign: 'center' }}>
+        <div style={{ fontSize: 56, marginBottom: 12 }}>📱</div>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px', letterSpacing: -0.5 }}>숨고 앱 다운로드</h1>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginBottom: 20, lineHeight: 1.5 }}>지금 앱 설치하고<br/>특별한 혜택 받아가세요!</p>
+        <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 16, padding: '16px 24px', width: '100%', maxWidth: 260 }}>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>3월 앱 다운로드 경품</div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>🏆 북중미 월드컵 티켓</div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>🍽️ 이타닉 가든 식사권</div>
+        </div>
+      </div>
+      <div style={{ padding: 16, background: '#fff', borderRadius: '24px 24px 0 0' }}>
+        <button onClick={() => { addHistory('🌐 웹 CTA 클릭 → 에어브릿지 링크 호출'); setScreen('routing'); }}
+          style={{ width: '100%', padding: '16px 0', background: '#7c3aed', color: '#fff', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 14, cursor: 'pointer' }}>앱 다운로드하고 혜택 받기</button>
+        <p style={{ textAlign: 'center', color: '#a1a1aa', fontSize: 11, marginTop: 8 }}>ⓘ CTA = 에어브릿지 단일 링크</p>
+      </div>
+    </div>
+  );
+
+  // === 라우팅 ===
+  const RoutingScreen = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc', padding: 24 }}>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ fontSize: 48, marginBottom: 8 }}>🔀</div>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', margin: 0 }}>에어브릿지 라우팅</h2>
+        <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>앱 설치 상태를 선택하세요</p>
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <button onClick={() => { addHistory('🔀 미설치 → 스토어 이동'); setScreen('store'); }}
+          style={{ flex: 1, background: '#fff', border: '2px solid #e2e8f0', borderRadius: 16, padding: 20, textAlign: 'center', cursor: 'pointer' }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>🏪</div>
+          <div style={{ fontWeight: 700, color: '#1e293b', fontSize: 15 }}>미설치</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>App Store / Play Store 이동</div>
+        </button>
+        <button onClick={() => { addHistory('🔀 기설치 → 앱 오픈 (Direct Deep Link)'); setScreen('setup_exist'); }}
+          style={{ flex: 1, background: '#fff', border: '2px solid #e2e8f0', borderRadius: 16, padding: 20, textAlign: 'center', cursor: 'pointer' }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>📱</div>
+          <div style={{ fontWeight: 700, color: '#1e293b', fontSize: 15 }}>기설치</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>앱 바로 열기 (Deep Link)</div>
+        </button>
+      </div>
+    </div>
+  );
+
+  // === 스토어 ===
+  const StoreScreen = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc', padding: 24 }}>
+      <div style={{ textAlign: 'center', marginBottom: 20 }}>
+        <div style={{ fontSize: 48, marginBottom: 8 }}>🏪</div>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', margin: 0 }}>App Store</h2>
+      </div>
+      <div style={{ background: '#fff', borderRadius: 16, padding: 16, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <div style={{ width: 60, height: 60, background: '#7c3aed', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 24, fontWeight: 800, flexShrink: 0 }}>숨</div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>숨고 - 생활서비스 전문가 매칭</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>⭐ 4.8 · 라이프스타일</div>
+        </div>
+      </div>
+      <div style={{ flex: 1 }} />
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button onClick={() => { addHistory('❌ 스토어 이탈 → 플로우 종료'); setScreen('exit'); }}
+          style={{ flex: 1, padding: 14, background: '#e2e8f0', color: '#64748b', fontWeight: 600, border: 'none', borderRadius: 12, cursor: 'pointer', fontSize: 14 }}>이탈</button>
+        <button onClick={() => { addHistory('✅ 설치 완료 → 앱 첫 실행 (Deferred Deep Link)'); setScreen('setup_new'); }}
+          style={{ flex: 1, padding: 14, background: '#3b82f6', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', fontSize: 14 }}>설치</button>
+      </div>
+    </div>
+  );
+
+  // === 시뮬레이션 설정 ===
+  const SetupScreen = ({ isNew }) => {
+    const linkType = isNew ? 'deferred' : 'direct';
+    const getTargetBranch = () => {
+      if (alreadyParticipated) return 'A';
+      if (!consentAll && linkType === 'direct') return 'B';
+      if (!consentAll && linkType === 'deferred') return 'C';
+      if (consentAll && pushAuthStatus === 'authorized') return 'D';
+      if (consentAll && pushAuthStatus !== 'authorized') return 'E';
+      return '?';
+    };
+    const branchLabels = { A: '이미 참여 완료', B: '기설치 + 약관 미충족', C: '신규 + 약관 미충족', D: '모두 동의 + 푸시 OK → 바로 완료', E: '모두 동의 + 푸시 미허용' };
+    const branchColors = { A: '#22c55e', B: '#f59e0b', C: '#f59e0b', D: '#22c55e', E: '#ef4444' };
+
+    const startFlow = () => {
+      const branch = getTargetBranch();
+      addHistory(`📱 앱 실행 (${isNew ? '신규' : '기설치'})`, 'section');
+      addHistory(`📤 setCustomAttribute('push_authorization_status', '${pushAuthStatus}')`, 'event');
+      addHistory(`📤 logCustomEvent('deeplink_open_promotion', {link_type: '${linkType}', term: 'appinstall_2603'})`, 'event');
+      addHistory(`🎯 Braze 분기 → ${branch}. ${branchLabels[branch]}`, 'branch');
+      if (branch === 'A') setScreen('iam_already');
+      else if (branch === 'B') setScreen('iam_exist_notice');
+      else if (branch === 'C') setScreen('terms_modal');
+      else if (branch === 'D') setScreen('iam_complete');
+      else if (branch === 'E') {
+        if (pushAuthStatus === 'not_determined') setScreen('push_primer_new');
+        else setScreen('push_primer_denied');
+      }
+    };
+
+    const branch = getTargetBranch();
+    const Pill = ({ label, active, onClick, color }) => (
+      <button onClick={onClick} style={{
+        flex: 1, padding: '8px 4px', border: `2px solid ${active ? (color || '#7c3aed') : '#e2e8f0'}`,
+        background: active ? (color || '#7c3aed') + '18' : '#fff',
+        borderRadius: 10, fontSize: 12, fontWeight: active ? 700 : 500,
+        color: active ? (color || '#7c3aed') : '#64748b', cursor: 'pointer', transition: 'all 0.15s'
+      }}>{label}</button>
+    );
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f1f5f9', padding: 16 }}>
+        <div style={{ textAlign: 'center', marginBottom: 12 }}>
+          <div style={{ fontSize: 32, marginBottom: 4 }}>🎮</div>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', margin: 0 }}>시뮬레이션 설정</h2>
+          <p style={{ fontSize: 11, color: '#94a3b8', margin: '4px 0 0' }}>{isNew ? '신규 설치' : '기설치'} 유저 플로우</p>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>is_participated_promotion_appinstall2603</div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <Pill label="false (첫 참여)" active={!alreadyParticipated} onClick={() => setAlreadyParticipated(false)} />
+              <Pill label="true (이미 참여)" active={alreadyParticipated} onClick={() => setAlreadyParticipated(true)} color="#22c55e" />
+            </div>
+          </div>
+          {!alreadyParticipated && (<>
+            <div style={{ background: '#fff', borderRadius: 12, padding: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>약관 4개 attr 충족 여부</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <Pill label="모두 충족" active={consentAll} onClick={() => setConsentAll(true)} color="#22c55e" />
+                <Pill label="미충족 있음" active={!consentAll} onClick={() => setConsentAll(false)} color="#f59e0b" />
+              </div>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 6, lineHeight: 1.4 }}>is_marketing_info_opted_in, is_marketing_message_opted_in, email_subscribe, push_subscribe</div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 12, padding: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>push_authorization_status</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <Pill label="authorized" active={pushAuthStatus === 'authorized'} onClick={() => { setPushAuthStatus('authorized'); setForegroundPushEnabled(true); }} color="#22c55e" />
+                <Pill label="not_determined" active={pushAuthStatus === 'not_determined'} onClick={() => { setPushAuthStatus('not_determined'); setForegroundPushEnabled(false); }} color="#6366f1" />
+                <Pill label="denied" active={pushAuthStatus === 'denied'} onClick={() => { setPushAuthStatus('denied'); setForegroundPushEnabled(false); }} color="#ef4444" />
+              </div>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 6, lineHeight: 1.4 }}>authorized → Foreground Push Enabled = true / not_determined·denied → false</div>
+            </div>
+          </>)}
+          <div style={{ background: (branchColors[branch] || '#6366f1') + '12', border: `2px solid ${branchColors[branch] || '#6366f1'}`, borderRadius: 12, padding: 12, textAlign: 'center' }}>
+            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>예상 분기</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: branchColors[branch] || '#6366f1' }}>분기 {branch}</div>
+            <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{branchLabels[branch]}</div>
+          </div>
+        </div>
+        <button onClick={startFlow} style={{ width: '100%', padding: 14, background: '#7c3aed', color: '#fff', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 12 }}>플로우 시작</button>
+      </div>
+    );
+  };
+
+  // === 분기 A: 이미 참여 ===
+  const IamAlready = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: 28, textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', width: '100%' }}>
+          <div style={{ width: 48, height: 48, background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 24 }}>✅</div>
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', margin: '0 0 8px' }}>이미 이벤트 참여가<br/>완료되었습니다</h3>
+          <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 8px' }}>당첨 결과는 추후 안내드립니다</p>
+          <EventBadge event="분기 A: 이미 참여" properties={{ is_participated_promotion_appinstall2603: 'true' }} />
+          <button onClick={() => { addHistory('✅ [확인] → 숨고 홈'); setScreen('home_done'); }}
+            style={{ width: '100%', padding: 14, background: '#22c55e', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 8, fontSize: 14 }}>확인</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === 분기 B: 기설치 안내 ===
+  const IamExistNotice = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: 28, textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', width: '100%' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>👋</div>
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', margin: '0 0 8px' }}>이미 숨고 앱이<br/>설치되어 있어요!</h3>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 6px', lineHeight: 1.5 }}>마케팅 앱 알림을 켜주셔야<br/>응모가 완료돼요</p>
+          <EventBadge event="view_has_app_modal" properties={{ event_name: 'promotion_appinstall_2603' }} />
+          <button onClick={() => { addHistory('📡 [응모 완료하기] → 약관 동의 모달'); setScreen('terms_modal'); }}
+            style={{ width: '100%', padding: 14, background: '#7c3aed', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 8, fontSize: 14 }}>응모 완료하기</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === 약관 동의 ===
+  const TermsModal = () => {
+    const allChecked = termsChecked.marketing_info && termsChecked.marketing_message;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+        <AppHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 40px rgba(0,0,0,0.1)', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
+              <span style={{ background: '#f43f5e', color: '#fff', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>Custom HTML IAM</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>약관 동의</span>
+            </div>
+            <EventBadge event="view_terms_consent_modal" properties={{ displayed_items: "['marketing_info','marketing_message']" }} />
+            {[
+              { key: 'marketing_info', label: '개인정보 마케팅 활용 동의' },
+              { key: 'marketing_message', label: '마케팅 알림 수신 동의' },
+            ].map(item => (
+              <div key={item.key} onClick={() => setTermsChecked(prev => ({ ...prev, [item.key]: !prev[item.key] }))} style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
+                background: termsChecked[item.key] ? '#f0fdf4' : '#f8fafc',
+                border: `2px solid ${termsChecked[item.key] ? '#22c55e' : '#e2e8f0'}`,
+                borderRadius: 12, marginBottom: 8, cursor: 'pointer', transition: 'all 0.15s', userSelect: 'none'
+              }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 6,
+                  background: termsChecked[item.key] ? '#22c55e' : '#fff',
+                  border: `2px solid ${termsChecked[item.key] ? '#22c55e' : '#d1d5db'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: 13, fontWeight: 700, flexShrink: 0
+                }}>{termsChecked[item.key] ? '✓' : ''}</div>
+                <span style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>{item.label}</span>
+              </div>
+            ))}
+            <button onClick={() => {
+              if (!allChecked) return;
+              addHistory('📝 [응모 완료하기] 클릭 (is_all_checked: true)', 'event');
+              addHistory("📝 brazeBridge: setCustomUserAttribute('is_marketing_info_opted_in', true)", 'event');
+              addHistory("📝 brazeBridge: setCustomUserAttribute('is_marketing_message_opted_in', true)", 'event');
+              addHistory("📝 brazeBridge: setEmailNotificationSubscriptionType('opted_in')", 'event');
+              addHistory("📝 brazeBridge: setPushNotificationSubscriptionType('opted_in')", 'event');
+              addHistory("📝 brazeBridge: fetch('/api/consent') → DB 저장", 'event');
+              addHistory('📝 brazeBridge: requestImmediateDataFlush()', 'event');
+              addHistory(`🎯 push_authorization_status 확인 → ${pushAuthStatus}`, 'branch');
+              if (pushAuthStatus === 'authorized') setScreen('iam_complete');
+              else if (pushAuthStatus === 'not_determined') setScreen('push_primer_new');
+              else setScreen('push_primer_denied');
+            }} style={{
+              width: '100%', padding: 14, marginTop: 8,
+              background: allChecked ? '#7c3aed' : '#e2e8f0',
+              color: allChecked ? '#fff' : '#a1a1aa',
+              fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 12,
+              cursor: allChecked ? 'pointer' : 'not-allowed', transition: 'all 0.2s'
+            }}>응모 완료하기</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // === Push Primer: not_determined ===
+  const PushPrimerNew = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: 28, textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', width: '100%' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🔔</div>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', margin: '0 0 8px' }}>기기 알림을 켜주셔야<br/>이벤트 참여가 완료돼요!</h3>
+          <EventBadge event="Push Primer IAM" properties={{ push_authorization_status: 'not_determined', segment: '약관 4개 충족 + Foreground Push = false' }} />
+          <button onClick={() => { addHistory('🔔 [알림 허용하기] → OS 권한 프롬프트'); setScreen('os_prompt'); }}
+            style={{ width: '100%', padding: 14, background: '#3b82f6', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 8, fontSize: 14 }}>알림 허용하기</button>
+          <button onClick={() => {
+            addHistory('✕ [닫기] → push_permission denied');
+            addHistory("📤 setCustomAttribute('push_authorization_status', 'denied')", 'event');
+            addHistory("📤 logCustomEvent('push_permission', {status: 'denied', source: 'prompt'})", 'event');
+            setScreen('iam_fail');
+          }} style={{ width: '100%', padding: 10, background: 'transparent', color: '#94a3b8', fontWeight: 500, border: 'none', cursor: 'pointer', marginTop: 4, fontSize: 13 }}>닫기</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === Push Primer: denied ===
+  const PushPrimerDenied = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: 28, textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', width: '100%' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🔔</div>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', margin: '0 0 8px' }}>설정에서 알림을 켜주셔야<br/>이벤트 참여가 완료돼요!</h3>
+          <EventBadge event="Push Primer IAM" properties={{ push_authorization_status: 'denied', segment: '약관 4개 충족 + Foreground Push = false' }} />
+          <button onClick={() => { addHistory('⚙️ [설정에서 켜기] → 설정 앱 딥링크'); setScreen('settings'); }}
+            style={{ width: '100%', padding: 14, background: '#6b7280', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 8, fontSize: 14 }}>설정에서 켜기</button>
+          <button onClick={() => {
+            addHistory('✕ [닫기] → push_permission denied');
+            addHistory("📤 setCustomAttribute('push_authorization_status', 'denied')", 'event');
+            addHistory("📤 logCustomEvent('push_permission', {status: 'denied', source: 'prompt'})", 'event');
+            setScreen('iam_fail');
+          }} style={{ width: '100%', padding: 10, background: 'transparent', color: '#94a3b8', fontWeight: 500, border: 'none', cursor: 'pointer', marginTop: 4, fontSize: 13 }}>닫기</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === OS 권한 프롬프트 ===
+  const OsPrompt = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'rgba(0,0,0,0.4)' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 16, padding: 24, textAlign: 'center', width: 280, boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 8px' }}>"숨고"이(가) 알림을<br/>보내고자 합니다</h3>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px', lineHeight: 1.4 }}>경고, 사운드 및 아이콘 배지가<br/>알림에 포함될 수 있습니다.</p>
+          <div style={{ display: 'flex', borderTop: '1px solid #e2e8f0' }}>
+            <button onClick={() => {
+              addHistory('🔕 OS 권한 → 거부');
+              addHistory("📤 setCustomAttribute('push_authorization_status', 'denied')", 'event');
+              addHistory("📤 logCustomEvent('push_permission', {status: 'denied', source: 'prompt'})", 'event');
+              setScreen('iam_fail');
+            }} style={{ flex: 1, padding: 12, background: 'transparent', color: '#3b82f6', fontWeight: 400, border: 'none', cursor: 'pointer', borderRight: '1px solid #e2e8f0', fontSize: 15 }}>허용 안 함</button>
+            <button onClick={() => {
+              addHistory('🔔 OS 권한 → 허용');
+              addHistory("📤 setCustomAttribute('push_authorization_status', 'authorized')", 'event');
+              addHistory("📤 logCustomEvent('push_permission', {status: 'granted', source: 'prompt'})", 'event');
+              setScreen('iam_complete');
+            }} style={{ flex: 1, padding: 12, background: 'transparent', color: '#3b82f6', fontWeight: 600, border: 'none', cursor: 'pointer', fontSize: 15 }}>허용</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === 설정 앱 ===
+  const SettingsScreen = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f2f2f7' }}>
+      <div style={{ background: '#f2f2f7', padding: '48px 16px 12px', borderBottom: '1px solid #c6c6c8' }}>
+        <div style={{ fontSize: 11, color: '#3b82f6', marginBottom: 4 }}>← 숨고</div>
+        <h2 style={{ fontSize: 28, fontWeight: 700, color: '#000', margin: 0 }}>알림</h2>
+      </div>
+      <div style={{ flex: 1, padding: 16 }}>
+        <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #e5e5e7' }}>
+            <span style={{ fontSize: 15 }}>알림 허용</span>
+            <div style={{ width: 44, height: 26, borderRadius: 13, background: '#e5e5e7', position: 'relative' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 11, background: '#fff', position: 'absolute', top: 2, left: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+            </div>
+          </div>
+        </div>
+        <p style={{ fontSize: 12, color: '#8e8e93', padding: '8px 16px', lineHeight: 1.4 }}>알림을 허용하면 이벤트 참여가 완료됩니다.</p>
+      </div>
+      <div style={{ padding: 16, display: 'flex', gap: 10 }}>
+        <button onClick={() => {
+          addHistory('🔕 설정: 거부 유지 → 앱 복귀');
+          addHistory("📤 logCustomEvent('push_permission', {status: 'denied', source: 'settings'})", 'event');
+          setScreen('iam_fail');
+        }} style={{ flex: 1, padding: 14, background: '#e2e8f0', color: '#64748b', fontWeight: 600, border: 'none', borderRadius: 12, cursor: 'pointer', fontSize: 14 }}>거부 유지</button>
+        <button onClick={() => {
+          addHistory('🔔 설정: 알림 허용 → 앱 복귀');
+          addHistory("📤 setCustomAttribute('push_authorization_status', 'authorized')", 'event');
+          addHistory("📤 logCustomEvent('push_permission', {status: 'granted', source: 'settings'})", 'event');
+          setScreen('iam_complete');
+        }} style={{ flex: 1, padding: 14, background: '#22c55e', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', fontSize: 14 }}>허용하기</button>
+      </div>
+    </div>
+  );
+
+  // === 참여 완료 ===
+  const IamComplete = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: 'linear-gradient(135deg, #fff 0%, #f0fdf4 100%)', borderRadius: 20, padding: 28, textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '2px solid #bbf7d0', width: '100%' }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
+          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#15803d', margin: '0 0 8px' }}>이벤트 참여 완료!</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '16px 0' }}>
+            {['🏆 북중미 월드컵 티켓', '🍽️ 이타닉 가든 식사권'].map(item => (
+              <div key={item} style={{ background: '#f0fdf4', borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 600, color: '#166534', textAlign: 'center' }}>{item}</div>
+            ))}
+          </div>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 4px' }}>당첨 결과는 추후 개별 안내드립니다</p>
+          <EventBadge event="view_participated_promotion_modal" properties={{ event_name: 'promotion_appinstall_2603', 'attr 생성': 'is_participated_promotion_appinstall2603 = true' }} />
+          <button onClick={() => {
+            addHistory('📡 view_participated_promotion_modal → attr 생성');
+            addHistory("📤 setCustomAttribute('is_participated_promotion_appinstall2603', true)", 'event');
+            addHistory('📤 requestImmediateDataFlush()', 'event');
+            addHistory('🎉 이벤트 참여 완료!', 'success');
+            setScreen('home_done');
+          }} style={{ width: '100%', padding: 14, background: '#22c55e', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 8, fontSize: 14 }}>확인</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === 참여 실패 ===
+  const IamFail = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: 28, textAlign: 'center', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', width: '100%' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🔕</div>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#dc2626', margin: '0 0 8px' }}>이벤트 참여를<br/>완료할 수 없어요</h3>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 6px', lineHeight: 1.5 }}>마케팅 수신 동의와 알림 권한이<br/>모두 켜져야 이벤트 참여가 완료됩니다.</p>
+          <EventBadge event="push_permission" properties={{ status: 'denied' }} />
+          <button onClick={() => { addHistory('❌ 이벤트 미완료 → 숨고 홈'); setScreen('home_fail'); }}
+            style={{ width: '100%', padding: 14, background: '#ef4444', color: '#fff', fontWeight: 700, border: 'none', borderRadius: 12, cursor: 'pointer', marginTop: 8, fontSize: 14 }}>확인</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // === 홈 ===
+  const HomeScreen = ({ success }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc' }}>
+      <AppHeader />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center' }}>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>🏠</div>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1e293b', margin: '0 0 8px' }}>숨고 홈</h2>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, background: success ? '#dcfce7' : '#fee2e2', color: success ? '#15803d' : '#dc2626' }}>
+          {success ? '✅ 이벤트 완료' : '❌ 이벤트 미완료'}
+        </div>
+      </div>
+      <div style={{ padding: 16 }}>
+        <button onClick={reset} style={{ width: '100%', padding: 14, background: '#1e293b', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 12, cursor: 'pointer' }}>🔄 처음부터 다시</button>
+      </div>
+    </div>
+  );
+
+  // === 이탈 ===
+  const ExitScreen = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fef2f2', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center' }}>
+      <div style={{ fontSize: 56, marginBottom: 16 }}>❌</div>
+      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#dc2626', margin: '0 0 8px' }}>이탈</h2>
+      <p style={{ fontSize: 14, color: '#64748b' }}>플로우 종료</p>
+      <button onClick={reset} style={{ marginTop: 24, padding: '12px 32px', background: '#1e293b', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 12, cursor: 'pointer' }}>🔄 처음부터 다시</button>
+    </div>
+  );
+
+  const renderScreen = () => {
+    switch (screen) {
+      case 'web': return <WebScreen />;
+      case 'routing': return <RoutingScreen />;
+      case 'store': return <StoreScreen />;
+      case 'setup_new': return <SetupScreen isNew={true} />;
+      case 'setup_exist': return <SetupScreen isNew={false} />;
+      case 'iam_already': return <IamAlready />;
+      case 'iam_exist_notice': return <IamExistNotice />;
+      case 'terms_modal': return <TermsModal />;
+      case 'push_primer_new': return <PushPrimerNew />;
+      case 'push_primer_denied': return <PushPrimerDenied />;
+      case 'os_prompt': return <OsPrompt />;
+      case 'settings': return <SettingsScreen />;
+      case 'iam_complete': return <IamComplete />;
+      case 'iam_fail': return <IamFail />;
+      case 'home_done': return <HomeScreen success={true} />;
+      case 'home_fail': return <HomeScreen success={false} />;
+      case 'exit': return <ExitScreen />;
+      default: return <WebScreen />;
+    }
+  };
+
+  const logStyles = {
+    section: { background: '#312e81', borderLeft: '3px solid #818cf8' },
+    event: { background: '#1e1b4b', borderLeft: '3px solid #a78bfa' },
+    branch: { background: '#134e4a', borderLeft: '3px solid #14b8a6' },
+    success: { background: '#14532d', borderLeft: '3px solid #22c55e' },
+    action: { background: '#1e293b', borderLeft: '3px solid #475569' },
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: 32, maxWidth: 1100, margin: '0 auto', padding: '24px 16px', minHeight: '100vh', alignItems: 'flex-start', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <div style={{ flexShrink: 0 }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, color: '#64748b', textAlign: 'center', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 1 }}>📱 App Simulator</h2>
+        <PhoneFrame>{renderScreen()}</PhoneFrame>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>📋 Action Log</h2>
+          <button onClick={() => setHistory([])} style={{ fontSize: 11, color: '#94a3b8', background: 'transparent', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: 6, cursor: 'pointer' }}>Clear</button>
+        </div>
+        <div ref={logRef} style={{ background: '#0f172a', borderRadius: 16, padding: 16, height: 700, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {history.length === 0 ? (
+            <p style={{ color: '#475569', fontSize: 13, textAlign: 'center', marginTop: 40 }}>CTA를 클릭하면 로그가 기록됩니다</p>
+          ) : (
+            history.map((item, i) => (
+              <div key={i} style={{ ...(logStyles[item.type] || logStyles.action), borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
+                <span style={{ color: '#64748b', fontSize: 10 }}>{item.time}</span>
+                <div style={{ color: '#e2e8f0', marginTop: 2, lineHeight: 1.4, wordBreak: 'break-all' }}>{item.action}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
