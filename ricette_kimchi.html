@@ -99,6 +99,27 @@
     background:var(--red); color:white; border-color:var(--red);
     box-shadow:0 2px 12px rgba(183,28,28,0.25);
   }
+  .nav-btn-num {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--border); color:var(--ink-muted);
+    font-size:11px; font-weight:700; margin-right:4px;
+  }
+  .nav-btn.active .nav-btn-num {
+    background:var(--red); color:var(--white);
+  }
+
+  .recipe-toggle {
+    display:flex; background:var(--cream-dark); border-radius:10px; padding:4px; margin-bottom:20px;
+  }
+  .recipe-toggle-btn {
+    flex:1; padding:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
+    border:none; background:none; cursor:pointer; border-radius:8px;
+    color:var(--ink-muted); transition:all 0.2s;
+  }
+  .recipe-toggle-btn.active {
+    background:var(--white); color:var(--ink); box-shadow:0 1px 4px var(--shadow-md);
+  }
 
   /* ── Container ── */
   .container { max-width:720px; margin:0 auto; padding:0 20px 60px; }
@@ -147,6 +168,21 @@
     margin-top:16px; font-size:13px; font-weight:600; color:var(--red); transition:gap 0.2s;
   }
   .recipe-card:hover .card-cta { gap:10px; }
+  .card-badge {
+    display:inline-block; font-size:12px; font-weight:600; padding:4px 10px;
+    border-radius:20px; margin-top:8px;
+  }
+  .card-badge.vegan { background:#E8F5E9; color:#2E7D32; }
+  .card-badge.rich { background:#FFF3E0; color:#E65100; }
+
+  .comparison { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+  .comparison-box { padding:12px 16px; border-radius:10px; font-size:14px; line-height:1.5; }
+  .comparison-box strong { display:block; margin-bottom:4px; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
+  .comparison-box.jeong { background:#F0F7F0; border:1px solid #C8E0C8; }
+  .comparison-box.jeong strong { color:#4A7A4A; }
+  .comparison-box.seon { background:#FFF8F0; border:1px solid #F0DCC0; }
+  .comparison-box.seon strong { color:#C87830; }
+  @media (max-width:480px) { .comparison { grid-template-columns:1fr; } }
 
   /* ── Info cards ── */
   .info-card {
@@ -327,10 +363,19 @@
   #view-brining .section-block:first-child .salare-imgs img:first-child {
     border-radius:0; border:none; object-fit:cover; max-height:none; height:auto; width:100%;
   }
+  /* processo-comune (view-r1, view-r2): Come salare il cavolo immagini a tutta larghezza */
+  .processo-comune .section-block:first-child .salare-imgs {
+    margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); border-radius:0;
+  }
+  .processo-comune .section-block:first-child .salare-imgs img:first-child {
+    border-radius:0; border:none; object-fit:cover; max-height:none; height:auto; width:100%;
+  }
   @media (max-width:480px) {
     .salare-imgs { grid-template-columns:1fr; } .salare-imgs img:first-child { max-height:240px; } .salare-imgs img { max-height:220px; }
     #view-brining .section-block:first-child .salare-imgs { margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); }
     #view-brining .section-block:first-child .salare-imgs img:first-child { max-height:none; height:auto; }
+    .processo-comune .section-block:first-child .salare-imgs { margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); }
+    .processo-comune .section-block:first-child .salare-imgs img:first-child { max-height:none; height:auto; }
   }
   .condimento-imgs {
     display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
@@ -602,11 +647,18 @@ function showView(id) {
   views.forEach(function(v) {
     v.classList.toggle('active', v.id === 'view-' + id);
   });
-  var navMap = { home: 0, base: 1, info: 2, brining: 3, consigli: 4 };
+  var navMap = { base: 0, info: 1, brining: 2, home: 3, r1: 3, r2: 3, consigli: 4 };
   var idx = navMap[id];
   navBtns.forEach(function(btn, i) {
     btn.classList.toggle('active', i === idx);
   });
+}
+function toggleRecipe(id) {
+  var btns = document.querySelectorAll('.recipe-toggle-btn');
+  btns.forEach(function(btn, i) {
+    btn.classList.toggle('active', (i === 0 && id === 'r1') || (i === 1 && id === 'r2'));
+  });
+  showView(id);
 }
 </script>
 
@@ -621,48 +673,58 @@ function showView(id) {
     </div>
   </div>
 
-  <nav class="nav-bar">
-    <button class="nav-btn active" onclick="showView('home')">Ricette</button>
-    <button class="nav-btn" onclick="showView('base')">Ingredienti base</button>
-    <button class="nav-btn" onclick="showView('info')">Riferimenti</button>
-    <button class="nav-btn" onclick="showView('brining')">Preparazione comune</button>
-    <button class="nav-btn" onclick="showView('consigli')">Consigli</button>
-  </nav>
-
-  <main class="container">
-
-    <!-- HOME -->
-    <div class="view active" id="view-home">
-      <div class="recipe-cards">
-        <div class="recipe-card" onclick="showView('r1')">
-          <div class="card-visual">
-            <img src="images/img_003_c88a4519.png" alt="Kimchi Jeong Kwan">
-            <span class="card-tag">Ricetta 1</span>
-          </div>
-          <div class="card-body">
-            <h2>Stile Monaco Jeong Kwan</h2>
-            <div class="card-origin">정관스님 · Monastero Chunjinam</div>
+  <div style="max-width:600px; margin:0 auto; padding:24px 20px 8px; text-align:center;">
+    <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--red-dark); margin-bottom:4px;">Due stili, due sapori</h2>
+    <p style="font-size:14px; color:var(--ink-muted); margin-bottom:16px;">Scegli il tuo kimchi — poi segui le schede qui sotto per prepararlo</p>
+    <div class="recipe-cards">
+      <div class="recipe-card" onclick="showView('r1')">
+        <div class="card-visual">
+          <img src="images/img_003_c88a4519.png" alt="Kimchi Jeong Kwan">
+          <span class="card-tag">Ricetta 1</span>
+        </div>
+        <div class="card-body">
+          <h2>Stile Monaco Jeong Kwan</h2>
+          <div class="card-origin">정관스님 · Monastero Chunjinam</div>
             <p>Completamente vegano. Il sapore umami viene da pomodori, peperone rosso e barbabietola. Gusto pulito, delicato e leggero.</p>
-            <div class="card-cta">Scopri la ricetta <span>→</span></div>
+            <span class="card-badge vegan">🌱 Vegano · Leggero</span>
           </div>
         </div>
         <div class="recipe-card" onclick="showView('r2')">
-          <div class="card-visual">
-            <img src="images/img_004_99fd86bb.png" alt="Kimchi Seonjae">
-            <span class="card-tag">Ricetta 2</span>
-          </div>
-          <div class="card-body">
-            <h2>Stile Monaca Seonjae</h2>
-            <div class="card-origin">선재스님 · Sapore ricco e complesso</div>
+        <div class="card-visual">
+          <img src="images/img_004_99fd86bb.png" alt="Kimchi Seonjae">
+          <span class="card-tag">Ricetta 2</span>
+        </div>
+        <div class="card-body">
+          <h2>Stile Monaca Seonjae</h2>
+          <div class="card-origin">선재스님 · Sapore ricco e complesso</div>
             <p>Più vicina al kimchi tradizionale. Dolcezza naturale della pera, profondità con zenzero e salsa di soia.</p>
-            <div class="card-cta">Scopri la ricetta <span>→</span></div>
+            <span class="card-badge rich">🍐 Ricco · Complesso</span>
           </div>
         </div>
       </div>
     </div>
 
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="showView('base')"><span class="nav-btn-num">1</span> Ingredienti base</button>
+    <button class="nav-btn" onclick="showView('info')"><span class="nav-btn-num">2</span> Riferimenti</button>
+    <button class="nav-btn" onclick="showView('brining')"><span class="nav-btn-num">3</span> Preparazione comune</button>
+    <button class="nav-btn" onclick="showView('home')"><span class="nav-btn-num">4</span> Ricette</button>
+    <button class="nav-btn" onclick="showView('consigli')"><span class="nav-btn-num">5</span> Consigli</button>
+  </nav>
+
+  <main class="container">
+
+    <!-- HOME (toggle ricette) -->
+    <div class="view" id="view-home">
+      <div class="recipe-toggle">
+        <button class="recipe-toggle-btn active" onclick="toggleRecipe('r1')">🌱 Jeong Kwan</button>
+        <button class="recipe-toggle-btn" onclick="toggleRecipe('r2')">🍐 Seonjae</button>
+      </div>
+      <p style="text-align:center; color:var(--ink-muted); font-size:14px;">↓ Seleziona una ricetta per vedere ingredienti e procedimento</p>
+    </div>
+
     <!-- INGREDIENTI BASE -->
-    <div class="view" id="view-base">
+    <div class="view active" id="view-base">
       <div class="section-block">
         <h3>Ingredienti Base</h3>
         <p style="font-size:14px; color:var(--ink-light); margin-bottom:20px;">Gli ingredienti fondamentali comuni a entrambe le ricette.</p>
@@ -710,6 +772,16 @@ function showView(id) {
         </div>
 </div>
         <p style="font-size:15px; color:var(--ink-muted); font-style:italic; margin-top:20px; padding-top:12px;">* Ogni ricetta ha ingredienti aggiuntivi specifici – vedi le tabelle nelle ricette.</p>
+        <div class="comparison">
+          <div class="comparison-box jeong">
+            <strong>Jeong Kwan — aggiunge:</strong>
+            Pomodoro, peperone rosso, barbabietola
+          </div>
+          <div class="comparison-box seon">
+            <strong>Seonjae — aggiunge:</strong>
+            Pera/mela, zenzero, salsa di soia, wakame
+          </div>
+        </div>
       </div>
     </div>
 
