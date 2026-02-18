@@ -665,7 +665,7 @@ function showView(id) {
       btn.classList.toggle('active', (i === 0 && id === 'r1') || (i === 1 && id === 'r2'));
     });
   }
-  window.scrollTo(0, 0);
+  document.querySelector('.nav-bar').scrollIntoView({ behavior: 'smooth' });
 }
 function toggleRecipe(id) {
   var btns = document.querySelectorAll('.recipe-toggle-btn');
@@ -680,12 +680,6 @@ function toggleRecipe(id) {
     <div class="header-eyebrow">Dal Tempio Coreano</div>
     <h1>Ricette Kimchi per <em>Lella</em></h1>
   </header>
-
-  <div class="hero-wrap">
-    <div class="hero-img-box"  style="text-align:center; background:transparent;">
-      <img src="images/img_002_9854e6e5.png" alt="Kimchi" style="width:80%; max-width:480px; height:auto; display:block; margin:0 auto; padding:24px 0; ">
-    </div>
-  </div>
 
   <div style="max-width:720px; margin:0 auto; padding:24px 20px 8px; text-align:center;">
     <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--red-dark); margin-bottom:4px;">Due stili, due sapori</h2>
@@ -904,12 +898,12 @@ function toggleRecipe(id) {
         <button class="recipe-toggle-btn active" onclick="showView('r1')">🌱 Jeong Kwan</button>
         <button class="recipe-toggle-btn" onclick="showView('r2')">🍐 Seonjae</button>
       </div>
+      <div style="margin-bottom:20px;">
+        <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ink); margin-bottom:4px;">Kimchi Stile Monaco Jeong Kwan</h2>
+        <p style="font-size:14px; color:var(--ink-muted);">정관스님 · Completamente vegano · Gusto pulito e leggero</p>
+      </div>
       <div class="detail-hero">
         <img src="images/img_003_c88a4519.png" alt="Kimchi Jeong Kwan">
-        <div class="detail-hero-overlay detail-hero-overlay-r1">
-          <h2>Kimchi Stile Monaco Jeong Kwan</h2>
-          <p>Completamente vegano · Gusto pulito e leggero</p>
-        </div>
       </div>
       <div class="section-block">
         <h3>Ingredienti</h3>
@@ -1018,12 +1012,12 @@ function toggleRecipe(id) {
         <button class="recipe-toggle-btn" onclick="showView('r1')">🌱 Jeong Kwan</button>
         <button class="recipe-toggle-btn active" onclick="showView('r2')">🍐 Seonjae</button>
       </div>
+      <div style="margin-bottom:20px;">
+        <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ink); margin-bottom:4px;">Kimchi Stile Monaca Seonjae</h2>
+        <p style="font-size:14px; color:var(--ink-muted);">선재스님 · Sapore ricco e complesso · Dolcezza della pera, zenzero e salsa di soia</p>
+      </div>
       <div class="detail-hero">
         <img src="images/img_004_99fd86bb.png" alt="Kimchi Seonjae">
-        <div class="detail-hero-overlay detail-hero-overlay-r2">
-          <h2>Kimchi Stile Monaca Seonjae</h2>
-          <p>Sapore ricco e complesso · Dolcezza della pera, zenzero e salsa di soia</p>
-        </div>
       </div>
       <div class="section-block">
         <h3>Ingredienti</h3>
