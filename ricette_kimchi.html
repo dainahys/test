@@ -193,6 +193,7 @@
   .info-card h3 {
     font-family:'DM Serif Display', Georgia, serif;
     font-size:20px; color:var(--red-dark); margin-bottom:12px;
+    padding-bottom:10px; border-bottom:1.5px solid var(--cream-dark);
   }
   .info-card p, .info-card li { font-size:14px; line-height:1.7; color:var(--ink-light); }
   .info-card ul { padding-left:18px; margin-top:8px; }
@@ -277,7 +278,7 @@
   }
   .note-block h3 {
     font-family:'DM Serif Display', Georgia, serif;
-    font-size:18px; color:var(--red-dark); margin-bottom:12px;
+    font-size:20px; color:var(--red-dark); margin-bottom:12px;
     border:none; padding:0;
   }
   .note-block li { font-size:14px; line-height:1.7; color:#5D4037; margin-bottom:6px; }
@@ -356,33 +357,15 @@
   }
   .salare-imgs img { width:100%; height:auto; max-height:200px; object-fit:cover; display:block; border-radius:8px; border:1px solid var(--border); }
   .salare-imgs img:first-child { grid-column:1 / -1; max-height:220px; object-fit:contain; background:var(--cream-dark); }
-  /* Come salare il cavolo: prima immagine a tutta larghezza senza margini (solo view-brining; in view-r1/r2 le immagini restano dentro la sezione) */
-  #view-brining .section-block:first-child .salare-imgs {
-    margin-left:-28px; margin-right:-28px; width:calc(100% + 56px); border-radius:0;
-  }
-  #view-brining .section-block:first-child .salare-imgs img:first-child {
-    border-radius:0; border:none; object-fit:cover; max-height:none; height:auto; width:100%;
-  }
-  /* processo-comune (view-r1, view-r2): Come salare il cavolo immagini a tutta larghezza */
-  .processo-comune .section-block:first-child .salare-imgs {
-    margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); border-radius:0;
-  }
-  .processo-comune .section-block:first-child .salare-imgs img:first-child {
-    border-radius:0; border:none; object-fit:cover; max-height:none; height:auto; width:100%;
-  }
   @media (max-width:480px) {
     .salare-imgs { grid-template-columns:1fr; } .salare-imgs img:first-child { max-height:240px; } .salare-imgs img { max-height:220px; }
-    #view-brining .section-block:first-child .salare-imgs { margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); }
-    #view-brining .section-block:first-child .salare-imgs img:first-child { max-height:none; height:auto; }
-    .processo-comune .section-block:first-child .salare-imgs { margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); }
-    .processo-comune .section-block:first-child .salare-imgs img:first-child { max-height:none; height:auto; }
   }
   .condimento-imgs {
     display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
     margin-bottom:16px; border-radius:12px; overflow:hidden;
   }
-  .condimento-imgs img { width:100%; height:auto; max-height:220px; object-fit:cover; display:block; border-radius:8px; border:1px solid var(--border); }
-  @media (max-width:480px) { .condimento-imgs { grid-template-columns:1fr; } .condimento-imgs img { max-height:240px; } }
+  .condimento-imgs img { width:100%; height:200px; object-fit:cover; display:block; border-radius:8px; border:1px solid var(--border); }
+  @media (max-width:480px) { .condimento-imgs { grid-template-columns:1fr; } .condimento-imgs img { height:200px; } }
   .applicare-imgs {
     display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
     margin-bottom:16px; border-radius:12px; overflow:hidden;
@@ -685,7 +668,7 @@ function toggleRecipe(id) {
   </header>
 
   <div style="max-width:720px; margin:0 auto; padding:24px 20px 8px; text-align:center;">
-    <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--red-dark); margin-bottom:4px;">Due stili, due sapori</h2>
+    <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ink); margin-bottom:4px;">Due stili, due sapori</h2>
     <p style="font-size:14px; color:var(--ink-muted); margin-bottom:16px;">Scegli il tuo kimchi — poi segui le schede qui sotto per prepararlo</p>
     <div class="recipe-cards">
       <div class="recipe-card" onclick="showView('r1')">
@@ -897,7 +880,7 @@ function toggleRecipe(id) {
         <button class="recipe-toggle-btn" onclick="showView('r2')">🍐 Seonjae</button>
       </div>
       <div style="margin-bottom:20px;">
-        <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ink); margin-bottom:4px;">Kimchi Stile Monaco Jeong Kwan</h2>
+        <h2 style="font-family:'DM Serif Display',serif; font-size:24px; color:var(--ink); margin-bottom:4px;">Kimchi Stile Monaco Jeong Kwan</h2>
         <p style="font-size:14px; color:var(--ink-muted);">정관스님 · Completamente vegano · Gusto pulito e leggero</p>
       </div>
       <div class="section-block">
@@ -1008,7 +991,7 @@ function toggleRecipe(id) {
         <button class="recipe-toggle-btn active" onclick="showView('r2')">🍐 Seonjae</button>
       </div>
       <div style="margin-bottom:20px;">
-        <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ink); margin-bottom:4px;">Kimchi Stile Monaca Seonjae</h2>
+        <h2 style="font-family:'DM Serif Display',serif; font-size:24px; color:var(--ink); margin-bottom:4px;">Kimchi Stile Monaca Seonjae</h2>
         <p style="font-size:14px; color:var(--ink-muted);">선재스님 · Sapore ricco e complesso · Dolcezza della pera, zenzero e salsa di soia</p>
       </div>
       <div class="section-block">
