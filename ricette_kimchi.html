@@ -320,30 +320,17 @@
   }
   .salare-imgs img { width:100%; height:auto; max-height:200px; object-fit:cover; display:block; border-radius:8px; border:1px solid var(--border); }
   .salare-imgs img:first-child { grid-column:1 / -1; max-height:220px; object-fit:contain; background:var(--cream-dark); }
-  /* Come salare il cavolo: prima immagine a tutta larghezza senza margini (view-brining e processo-comune in view-r1, view-r2) */
+  /* Come salare il cavolo: prima immagine a tutta larghezza senza margini (solo view-brining; in view-r1/r2 le immagini restano dentro la sezione) */
   #view-brining .section-block:first-child .salare-imgs {
     margin-left:-28px; margin-right:-28px; width:calc(100% + 56px); border-radius:0;
   }
-  /* processo-comune: section-block non è first-child, e serve uscire anche dal padding di processo-comune (20px) */
-  #view-r1 .processo-comune .section-block .salare-imgs,
-  #view-r2 .processo-comune .section-block .salare-imgs {
-    margin-left:-48px; margin-right:-48px; width:calc(100% + 96px); border-radius:0;
-  }
   #view-brining .section-block:first-child .salare-imgs img:first-child {
-    border-radius:0; border:none; object-fit:cover; max-height:none; height:auto; width:100%;
-  }
-  #view-r1 .processo-comune .section-block .salare-imgs img:first-child,
-  #view-r2 .processo-comune .section-block .salare-imgs img:first-child {
     border-radius:0; border:none; object-fit:cover; max-height:none; height:auto; width:100%;
   }
   @media (max-width:480px) {
     .salare-imgs { grid-template-columns:1fr; } .salare-imgs img:first-child { max-height:240px; } .salare-imgs img { max-height:220px; }
     #view-brining .section-block:first-child .salare-imgs { margin-left:-20px; margin-right:-20px; width:calc(100% + 40px); }
-    #view-r1 .processo-comune .section-block .salare-imgs,
-    #view-r2 .processo-comune .section-block .salare-imgs { margin-left:-40px; margin-right:-40px; width:calc(100% + 80px); }
     #view-brining .section-block:first-child .salare-imgs img:first-child { max-height:none; height:auto; }
-    #view-r1 .processo-comune .section-block .salare-imgs img:first-child,
-    #view-r2 .processo-comune .section-block .salare-imgs img:first-child { max-height:none; height:auto; }
   }
   .condimento-imgs {
     display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
