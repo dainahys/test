@@ -110,10 +110,10 @@
   }
 
   .recipe-toggle {
-    display:flex; background:var(--cream-dark); border-radius:10px; padding:4px; margin-bottom:20px;
+    display:flex; background:var(--cream-dark); border-radius:10px; padding:2px; gap:2px; margin-bottom:20px;
   }
   .recipe-toggle-btn {
-    flex:1; padding:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
+    flex:1; padding:10px 5px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
     border:none; background:none; cursor:pointer; border-radius:8px;
     color:var(--ink-muted); transition:all 0.2s;
   }
@@ -644,14 +644,28 @@ function closeIntro() {
 function showView(id) {
   var views = document.querySelectorAll('.view');
   var navBtns = document.querySelectorAll('.nav-btn');
+
+  // Ricette 탭 클릭 시 기본으로 r1 표시
+  if (id === 'home') { id = 'r1'; }
+
   views.forEach(function(v) {
     v.classList.toggle('active', v.id === 'view-' + id);
   });
-  var navMap = { base: 0, info: 1, brining: 2, home: 3, r1: 3, r2: 3, consigli: 4 };
+
+  var navMap = { base: 0, info: 1, brining: 2, r1: 3, r2: 3, consigli: 4 };
   var idx = navMap[id];
   navBtns.forEach(function(btn, i) {
     btn.classList.toggle('active', i === idx);
   });
+
+  // 토글 버튼 상태 동기화
+  var toggleBtns = document.querySelectorAll('.recipe-toggle-btn');
+  if (toggleBtns.length) {
+    toggleBtns.forEach(function(btn, i) {
+      btn.classList.toggle('active', (i === 0 && id === 'r1') || (i === 1 && id === 'r2'));
+    });
+  }
+  window.scrollTo(0, 0);
 }
 function toggleRecipe(id) {
   var btns = document.querySelectorAll('.recipe-toggle-btn');
@@ -673,7 +687,7 @@ function toggleRecipe(id) {
     </div>
   </div>
 
-  <div style="max-width:600px; margin:0 auto; padding:24px 20px 8px; text-align:center;">
+  <div style="max-width:720px; margin:0 auto; padding:24px 20px 8px; text-align:center;">
     <h2 style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--red-dark); margin-bottom:4px;">Due stili, due sapori</h2>
     <p style="font-size:14px; color:var(--ink-muted); margin-bottom:16px;">Scegli il tuo kimchi — poi segui le schede qui sotto per prepararlo</p>
     <div class="recipe-cards">
@@ -712,16 +726,11 @@ function toggleRecipe(id) {
     <button class="nav-btn" onclick="showView('consigli')"><span class="nav-btn-num">5</span> Consigli</button>
   </nav>
 
-  <main class="container">
+  <div style="max-width:720px; margin:0 auto; padding:0 20px 12px;">
+    <button class="detail-back" onclick="showView('home')">← Torna alle ricette</button>
+  </div>
 
-    <!-- HOME (toggle ricette) -->
-    <div class="view" id="view-home">
-      <div class="recipe-toggle">
-        <button class="recipe-toggle-btn active" onclick="toggleRecipe('r1')">🌱 Jeong Kwan</button>
-        <button class="recipe-toggle-btn" onclick="toggleRecipe('r2')">🍐 Seonjae</button>
-      </div>
-      <p style="text-align:center; color:var(--ink-muted); font-size:14px;">↓ Seleziona una ricetta per vedere ingredienti e procedimento</p>
-    </div>
+  <main class="container">
 
     <!-- INGREDIENTI BASE -->
     <div class="view active" id="view-base">
@@ -891,7 +900,10 @@ function toggleRecipe(id) {
 
     <!-- RICETTA 1 -->
     <div class="view" id="view-r1">
-      <button class="detail-back" onclick="showView('home')">← Torna alle ricette</button>
+      <div class="recipe-toggle">
+        <button class="recipe-toggle-btn active" onclick="showView('r1')">🌱 Jeong Kwan</button>
+        <button class="recipe-toggle-btn" onclick="showView('r2')">🍐 Seonjae</button>
+      </div>
       <div class="detail-hero">
         <img src="images/img_003_c88a4519.png" alt="Kimchi Jeong Kwan">
         <div class="detail-hero-overlay detail-hero-overlay-r1">
@@ -1002,7 +1014,10 @@ function toggleRecipe(id) {
 
     <!-- RICETTA 2 -->
     <div class="view" id="view-r2">
-      <button class="detail-back" onclick="showView('home')">← Torna alle ricette</button>
+      <div class="recipe-toggle">
+        <button class="recipe-toggle-btn" onclick="showView('r1')">🌱 Jeong Kwan</button>
+        <button class="recipe-toggle-btn active" onclick="showView('r2')">🍐 Seonjae</button>
+      </div>
       <div class="detail-hero">
         <img src="images/img_004_99fd86bb.png" alt="Kimchi Seonjae">
         <div class="detail-hero-overlay detail-hero-overlay-r2">
