@@ -110,7 +110,7 @@
   }
 
   .recipe-toggle {
-    display:flex; background:var(--cream-dark); border-radius:10px; padding:2px; gap:2px; margin-bottom:20px;
+    display:flex; background:var(--cream-dark); border-radius:10px; padding:2px; gap:2px; margin-bottom:16px;
   }
   .recipe-toggle-btn {
     flex:1; padding:10px 5px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
@@ -125,7 +125,7 @@
   .container { max-width:720px; margin:0 auto; padding:0 20px 60px; }
 
   /* ── Views ── */
-  .view { display:none; animation:fadeUp 0.4s ease; }
+  .view { display:none; animation:fadeUp 0.4s ease; padding-top:20px; }
   .view.active { display:block; }
   @keyframes fadeUp {
     from { opacity:0; transform:translateY(16px); }
@@ -315,7 +315,7 @@
   .detail-back {
     display:inline-flex; align-items:center; gap:6px;
     font-size:14px; font-weight:500; color:var(--ink-muted);
-    cursor:pointer; padding:8px 0; margin-bottom:16px;
+    cursor:pointer; padding:8px 0; margin-bottom:12px;
     transition:color 0.2s; background:none; border:none; font-family:inherit;
   }
   .detail-back:hover { color:var(--red); }
@@ -398,7 +398,7 @@
 
   /* ── Processo comune (embedded in each recipe) ── */
   .processo-comune {
-    margin-bottom:28px; padding:20px;
+    margin-bottom:28px; padding:20px 28px;
     background:linear-gradient(135deg, #F5F0E8, #EDE6DC);
     border:1.5px solid var(--border);
     border-left:4px solid var(--gold);
@@ -437,10 +437,12 @@
   .app-footer .footer-line:last-child { margin-bottom:0; }
 
   @media (max-width:480px) {
+    .view { padding-top:16px; }
     .header { padding:40px 20px 12px; }
     .card-body { padding:18px; }
     .card-body h2 { font-size:20px; }
     .section-block { padding:20px; }
+    .processo-comune { padding:16px 20px; }
     .detail-hero h2 { font-size:22px; }
     .nav-btn { padding:7px 14px; font-size:12px; }
     .ingr-grid { gap:10px; }
