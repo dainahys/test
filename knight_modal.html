@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나이트 소환 모달</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+
+  /* ── 600×600 Square Modal ── */
+  .modal {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    background: #EFF1F5;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  /* ── Text ── */
+  .text-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 37px;
+    z-index: 20;
+  }
+  .text-area .subtitle {
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 45px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #1C242F;
+  }
+  .text-area .title {
+    font-weight: 800;
+    font-size: 59px;
+    line-height: 70px;
+    text-align: center;
+    letter-spacing: -2px;
+    color: #1C242F;
+  }
+
+  /* ── Chessboard ── */
+  .chessboard {
+    position: absolute;
+    width: 800px;
+    height: 403px;
+    left: calc(50% - 400px);
+    top: 304px;
+    z-index: 1;
+  }
+  .chessboard img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Dark gradient overlays (양쪽 어둠) ── */
+  .shadow-left {
+    position: absolute;
+    width: 384px;
+    height: 233px;
+    left: -16px;
+    top: 366px;
+    background: linear-gradient(319.5deg, rgba(0,0,0,0) 70.65%, #000 94.57%);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .shadow-right {
+    position: absolute;
+    width: 385px;
+    height: 233px;
+    right: -16px;
+    top: 364px;
+    background: linear-gradient(319.5deg, rgba(0,0,0,0) 70.65%, #000 94.57%);
+    transform: scaleX(-1);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* ── Top fade ── */
+  .fade-top {
+    position: absolute;
+    width: 598px;
+    height: 103px;
+    left: 2px;
+    top: 304px;
+    background: linear-gradient(180deg, #EFF1F5 5.83%, rgba(239,241,245,0) 80.09%);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* ── Knight shadow ── */
+  .knight-shadow {
+    position: absolute;
+    width: 95px;
+    height: 29px;
+    left: calc(50% - 49px);
+    top: 441px;
+    background: linear-gradient(90.74deg, rgba(0,0,0,0) -51.63%, #000 168.93%),
+                linear-gradient(90deg, rgba(0,0,0,0) -52.93%, #000 165.89%),
+                linear-gradient(90.95deg, rgba(27,0,160,0) 0.59%, #1B00A0 99.19%);
+    filter: blur(6.4px);
+    z-index: 8;
+    animation: shadowFlicker 0.8s step-end infinite;
+  }
+
+  /* ── Knight blink layer ── */
+  .knight-layer {
+    position: absolute;
+    width: 115px;
+    left: calc(50% - 115px/2 - 11px);
+    top: 41.81%;
+    bottom: 23.06%;
+    z-index: 10;
+  }
+  .knight-layer img {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Rapid blink — step-end for sharp flicker */
+  .knight-layer .outline {
+    animation: flickerOutline 0.8s step-end infinite;
+  }
+  .knight-layer .real {
+    animation: flickerReal 0.8s step-end infinite;
+  }
+
+  @keyframes flickerOutline {
+    0%   { opacity: 1; }
+    50%  { opacity: 0; }
+  }
+  @keyframes flickerReal {
+    0%   { opacity: 0; }
+    50%  { opacity: 1; }
+  }
+  @keyframes shadowFlicker {
+    0%   { opacity: 0.3; }
+    50%  { opacity: 0.8; }
+  }
+
+  /* ── Noise overlay ── */
+  .noise {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+    z-index: 15;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* ── CTA ── */
+  .cta-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px;
+    gap: 18.75px;
+    position: absolute;
+    width: 600px;
+    height: 150px;
+    left: 0;
+    bottom: 0;
+    z-index: 20;
+  }
+  .cta-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 22.5px 30px;
+    width: 540px;
+    height: 90px;
+    background: #FF3541;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cta-btn:active {
+    transform: scale(0.98);
+    filter: brightness(0.95);
+  }
+  .cta-btn .label {
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 38px;
+    color: #FFFFFF;
+    text-align: center;
+  }
+
+  /* ── Responsive (mobile preview) ── */
+  @media (max-width: 640px) {
+    .modal {
+      width: 100vw;
+      height: 100vw;
+    }
+    .chessboard {
+      width: 133.3%;
+      left: calc(50% - 66.65%);
+      height: auto;
+      top: 50.7%;
+    }
+    .text-area { top: 6.2%; }
+    .text-area .subtitle { font-size: 4.67vw; line-height: 7.5vw; }
+    .text-area .title { font-size: 9.83vw; line-height: 11.67vw; }
+    .cta-area { padding: 5vw; height: 25%; }
+    .cta-btn { width: 100%; height: 100%; border-radius: 2.67vw; }
+    .cta-btn .label { font-size: 5vw; }
+    .shadow-left, .shadow-right { display: none; }
+    .fade-top { width: 100%; left: 0; top: 50.7%; }
+    .knight-shadow { top: 73.5%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay">
+  <div class="modal">
+
+    <!-- Text -->
+    <div class="text-area">
+      <div class="subtitle">앱으로 실행해야 소환돼요!</div>
+      <div class="title">아직 나이트가<br>없어요</div>
+    </div>
+
+    <!-- Top fade -->
+    <div class="fade-top"></div>
+
+    <!-- Knight -->
+    <div class="knight-shadow"></div>
+    <div class="knight-layer">
+      <img class="outline" src="images/knight_outline.png" alt="">
+      <img class="real" src="images/knight_real.png" alt="">
+    </div>
+
+    <!-- Chessboard -->
+    <div class="chessboard">
+      <img src="images/chessboard.png" alt="">
+    </div>
+
+    <!-- Dark edges -->
+    <div class="shadow-left"></div>
+    <div class="shadow-right"></div>
+
+    <!-- Noise overlay -->
+    <div class="noise"></div>
+
+    <!-- CTA -->
+    <div class="cta-area">
+      <button class="cta-btn">
+        <span class="label">나이트 소환하기</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
