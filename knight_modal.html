@@ -26,13 +26,13 @@
     z-index: 1000;
   }
 
-  /* ── 600×600 Square Modal ── */
+  /* ── 320×320 Square Modal (mobile) ── */
   .modal {
     position: relative;
-    width: 600px;
-    height: 600px;
+    width: 320px;
+    height: 320px;
     background: #EFF1F5;
-    border-radius: 0;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 24px 80px rgba(0,0,0,0.5);
   }
@@ -45,33 +45,33 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: 37px;
+    top: 20px;
     z-index: 20;
   }
   .text-area .subtitle {
     font-weight: 600;
-    font-size: 28px;
-    line-height: 45px;
+    font-size: 14px;
+    line-height: 22px;
     text-align: center;
     letter-spacing: -0.02em;
     color: #1C242F;
   }
   .text-area .title {
     font-weight: 800;
-    font-size: 59px;
-    line-height: 70px;
+    font-size: 28px;
+    line-height: 36px;
     text-align: center;
-    letter-spacing: -2px;
+    letter-spacing: -1px;
     color: #1C242F;
   }
 
   /* ── Chessboard ── */
   .chessboard {
     position: absolute;
-    width: 800px;
-    height: 403px;
-    left: calc(50% - 400px);
-    top: 304px;
+    width: 430px;
+    height: 216px;
+    left: calc(50% - 215px);
+    top: 160px;
     z-index: 1;
   }
   .chessboard img {
@@ -81,35 +81,16 @@
   }
 
   /* ── Dark gradient overlays (양쪽 어둠) ── */
-  .shadow-left {
-    position: absolute;
-    width: 384px;
-    height: 233px;
-    left: -16px;
-    top: 366px;
-    background: linear-gradient(319.5deg, rgba(0,0,0,0) 70.65%, #000 94.57%);
-    z-index: 2;
-    pointer-events: none;
-  }
-  .shadow-right {
-    position: absolute;
-    width: 385px;
-    height: 233px;
-    right: -16px;
-    top: 364px;
-    background: linear-gradient(319.5deg, rgba(0,0,0,0) 70.65%, #000 94.57%);
-    transform: scaleX(-1);
-    z-index: 2;
-    pointer-events: none;
-  }
+  .shadow-left { display: none; }
+  .shadow-right { display: none; }
 
   /* ── Top fade ── */
   .fade-top {
     position: absolute;
-    width: 598px;
-    height: 103px;
-    left: 2px;
-    top: 304px;
+    width: 318px;
+    height: 55px;
+    left: 1px;
+    top: 160px;
     background: linear-gradient(180deg, #EFF1F5 5.83%, rgba(239,241,245,0) 80.09%);
     z-index: 3;
     pointer-events: none;
@@ -118,14 +99,14 @@
   /* ── Knight shadow ── */
   .knight-shadow {
     position: absolute;
-    width: 95px;
-    height: 29px;
-    left: calc(50% - 49px);
-    top: 441px;
+    width: 50px;
+    height: 16px;
+    left: calc(50% - 27px);
+    top: 235px;
     background: linear-gradient(90.74deg, rgba(0,0,0,0) -51.63%, #000 168.93%),
                 linear-gradient(90deg, rgba(0,0,0,0) -52.93%, #000 165.89%),
                 linear-gradient(90.95deg, rgba(27,0,160,0) 0.59%, #1B00A0 99.19%);
-    filter: blur(6.4px);
+    filter: blur(3.5px);
     z-index: 8;
     animation: shadowFlicker 0.8s step-end infinite;
   }
@@ -133,10 +114,10 @@
   /* ── Knight blink layer ── */
   .knight-layer {
     position: absolute;
-    width: 115px;
-    left: calc(50% - 115px/2 - 11px);
-    top: 41.81%;
-    bottom: 23.06%;
+    width: 62px;
+    left: calc(50% - 62px/2 - 6px);
+    top: 42%;
+    bottom: 23%;
     z-index: 10;
   }
   .knight-layer img {
@@ -188,11 +169,10 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 30px;
-    gap: 18.75px;
+    padding: 16px;
     position: absolute;
-    width: 600px;
-    height: 150px;
+    width: 320px;
+    height: 80px;
     left: 0;
     bottom: 0;
     z-index: 20;
@@ -201,11 +181,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 22.5px 30px;
-    width: 540px;
-    height: 90px;
+    padding: 12px 16px;
+    width: 288px;
+    height: 48px;
     background: #FF3541;
-    border-radius: 16px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -217,34 +197,13 @@
   .cta-btn .label {
     font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
     font-weight: 600;
-    font-size: 30px;
-    line-height: 38px;
+    font-size: 16px;
+    line-height: 20px;
     color: #FFFFFF;
     text-align: center;
   }
 
-  /* ── Responsive (mobile preview) ── */
-  @media (max-width: 640px) {
-    .modal {
-      width: 100vw;
-      height: 100vw;
-    }
-    .chessboard {
-      width: 133.3%;
-      left: calc(50% - 66.65%);
-      height: auto;
-      top: 50.7%;
-    }
-    .text-area { top: 6.2%; }
-    .text-area .subtitle { font-size: 4.67vw; line-height: 7.5vw; }
-    .text-area .title { font-size: 9.83vw; line-height: 11.67vw; }
-    .cta-area { padding: 5vw; height: 25%; }
-    .cta-btn { width: 100%; height: 100%; border-radius: 2.67vw; }
-    .cta-btn .label { font-size: 5vw; }
-    .shadow-left, .shadow-right { display: none; }
-    .fade-top { width: 100%; left: 0; top: 50.7%; }
-    .knight-shadow { top: 73.5%; }
-  }
+
 </style>
 </head>
 <body>
