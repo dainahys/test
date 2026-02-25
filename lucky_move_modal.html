@@ -77,6 +77,9 @@
     height: 100%;
     object-fit: cover;
   }
+  .chessboard.shake {
+    animation: boardShake 0.3s ease-out;
+  }
 
   /* ── Drop zone (entire chessboard area) ── */
   .drop-zone { display: none; }
@@ -285,6 +288,21 @@
     70% { transform: scale(1.02) translateY(-2px); }
     100% { transform: scale(1) translateY(0); }
   }
+  @keyframes boardShake {
+    0%   { transform: translate(0, 0); }
+    15%  { transform: translate(-2px, 1px); }
+    30%  { transform: translate(2px, -1px); }
+    45%  { transform: translate(-1.5px, 0.5px); }
+    60%  { transform: translate(1px, -0.5px); }
+    75%  { transform: translate(-0.5px, 0.3px); }
+    100% { transform: translate(0, 0); }
+  }
+  @keyframes slamDown {
+    0%   { transform: translateY(-8px) scale(1.05); opacity: 0.8; }
+    50%  { transform: translateY(2px) scale(0.97); opacity: 1; }
+    75%  { transform: translateY(-1px) scale(1.01); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -435,38 +453,70 @@ function onEnd(e) {
 function landKnight(dropLeft, dropTop) {
   landed = true;
 
-  // Keep at dropped position
-  knight.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  // ── Grid snap: align to chessboard cells ──
+  // Board visible area in modal: roughly x: 15~305, y: 180~310
+  // 8 columns, ~5 visible rows
+  const boardLeft = 15;
+  const boardRight = 305;
+  const boardTop = 180;
+  const boardBottom = 300;
+  const cols = 8;
+  const rows = 4;
+  const cellW = (boardRight - boardLeft) / cols;  // ~36px
+  const cellH = (boardBottom - boardTop) / rows;  // ~30px
+
+  // Knight center point
+  const kCenterX = dropLeft + 32;
+  const kCenterY = dropTop + 50;
+
+  // Snap to nearest cell center
+  let col = Math.round((kCenterX - boardLeft) / cellW - 0.5);
+  let row = Math.round((kCenterY - boardTop) / cellH - 0.5);
+  col = Math.max(0, Math.min(cols - 1, col));
+  row = Math.max(0, Math.min(rows - 1, row));
+
+  const snapX = boardLeft + col * cellW + cellW / 2 - 32;
+  const snapY = boardTop + row * cellH + cellH / 2 - 50;
+
+  // Snap knight to grid cell
+  knight.style.transition = 'left 0.15s ease-out, top 0.15s ease-out';
+  knight.style.left = snapX + 'px';
+  knight.style.top = snapY + 'px';
   knight.classList.add('landed');
 
-  // Hide drop zone
-  dropZone.style.opacity = '0';
+  // ── Slam down effect ──
+  setTimeout(() => {
+    knight.style.transition = 'none';
+    knight.style.animation = 'slamDown 0.3s ease-out forwards';
+  }, 150);
 
-  // Show shadow at drop position
-  boardShadow.style.left = (dropLeft + 10) + 'px';
-  boardShadow.style.top = (dropTop + 62) + 'px';
+  // ── Board shake ──
+  const chessboard = document.querySelector('.chessboard');
+  setTimeout(() => {
+    chessboard.classList.add('shake');
+    setTimeout(() => chessboard.classList.remove('shake'), 350);
+  }, 200);
+
+  // Show shadow at snapped position
+  boardShadow.style.left = (snapX + 10) + 'px';
+  boardShadow.style.top = (snapY + 62) + 'px';
   boardShadow.classList.add('visible');
 
-  // Position impact ring at drop point
-  impactRing.style.left = (dropLeft - 8) + 'px';
-  impactRing.style.top = (dropTop + 16) + 'px';
-
-  // Bounce animation
-  setTimeout(() => {
-    knight.style.animation = 'landBounce 0.4s ease forwards';
-  }, 100);
+  // Position impact ring at snap point
+  impactRing.style.left = (snapX - 8) + 'px';
+  impactRing.style.top = (snapY + 16) + 'px';
 
   // Impact ring
   setTimeout(() => {
     impactRing.classList.add('boom');
-  }, 150);
+  }, 220);
 
-  // Confetti from drop point
-  const confettiX = dropLeft + 32;
-  const confettiY = dropTop + 40;
+  // Confetti from snap point
+  const confettiX = snapX + 32;
+  const confettiY = snapY + 40;
   setTimeout(() => {
     launchConfetti(confettiX, confettiY);
-  }, 300);
+  }, 350);
 
   // Reveal prize
   setTimeout(() => {
