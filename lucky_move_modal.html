@@ -78,30 +78,8 @@
     object-fit: cover;
   }
 
-  /* ── Drop target zone (visual hint) ── */
-  .drop-zone {
-    position: absolute;
-    width: 56px;
-    height: 56px;
-    left: calc(50% - 28px);
-    top: 200px;
-    border: 2.5px dashed rgba(105, 59, 242, 0.5);
-    border-radius: 12px;
-    z-index: 5;
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    background: rgba(105, 59, 242, 0.06);
-  }
-  .drop-zone.visible {
-    opacity: 1;
-    animation: dropPulse 1.2s ease-in-out infinite;
-  }
-  .drop-zone.highlight {
-    border-color: #693BF2;
-    background: rgba(105, 59, 242, 0.15);
-    transform: scale(1.1);
-    animation: none;
-  }
+  /* ── Drop zone (entire chessboard area) ── */
+  .drop-zone { display: none; }
 
   /* ── Top fade ── */
   .fade-top {
@@ -419,22 +397,13 @@ function onMove(e) {
   knight.style.left = newLeft + 'px';
   knight.style.top = newTop + 'px';
 
-  // Check proximity to drop zone
-  const dzRect = dropZone.getBoundingClientRect();
-  const knightCenter = {
-    x: pos.x - offsetX + 32,
-    y: pos.y - offsetY + 50
-  };
-  const dzCenter = {
-    x: dzRect.left + dzRect.width / 2,
-    y: dzRect.top + dzRect.height / 2
-  };
-  const dist = Math.hypot(knightCenter.x - dzCenter.x, knightCenter.y - dzCenter.y);
-
-  if (dist < 60) {
-    dropZone.classList.add('highlight');
+  // Check if over chessboard area (top >= 170px in modal = board region)
+  const modalRect2 = modal.getBoundingClientRect();
+  const knightBottom = pos.y - modalRect2.top - offsetY + 64;
+  if (knightBottom > 170) {
+    knight.style.filter = 'drop-shadow(0 12px 24px rgba(0,0,0,0.4))';
   } else {
-    dropZone.classList.remove('highlight');
+    knight.style.filter = 'drop-shadow(0 16px 32px rgba(0,0,0,0.35))';
   }
 }
 
@@ -443,21 +412,14 @@ function onEnd(e) {
   isDragging = false;
   knight.classList.remove('dragging');
 
-  // Check if dropped on zone
-  const knightRect = knight.getBoundingClientRect();
-  const dzRect = dropZone.getBoundingClientRect();
-  const knightCenter = {
-    x: knightRect.left + knightRect.width / 2,
-    y: knightRect.top + knightRect.height / 2
-  };
-  const dzCenter = {
-    x: dzRect.left + dzRect.width / 2,
-    y: dzRect.top + dzRect.height / 2
-  };
-  const dist = Math.hypot(knightCenter.x - dzCenter.x, knightCenter.y - dzCenter.y);
+  // Check if knight bottom is on chessboard area (y > ~170px in modal)
+  const knightTop = parseInt(knight.style.top);
+  const knightLeft = parseInt(knight.style.left);
+  const knightBottom = knightTop + 64;
 
-  if (dist < 65) {
-    landKnight();
+  if (knightBottom > 170 && knightTop < 280) {
+    // Land at dropped position
+    landKnight(knightLeft, knightTop);
   } else {
     // Snap back
     knight.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
@@ -468,42 +430,43 @@ function onEnd(e) {
       knight.classList.add('floating');
     }, 400);
   }
-
-  dropZone.classList.remove('highlight');
 }
 
-function landKnight() {
+function landKnight(dropLeft, dropTop) {
   landed = true;
 
-  // Snap to drop zone center
-  const dzLeft = parseInt(dropZone.style.left || getComputedStyle(dropZone).left);
-  const dzTop = parseInt(dropZone.style.top || getComputedStyle(dropZone).top);
-
+  // Keep at dropped position
   knight.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
-  knight.style.left = (160 - 32) + 'px';
-  knight.style.top = '192px';
   knight.classList.add('landed');
 
   // Hide drop zone
   dropZone.style.opacity = '0';
 
-  // Show shadow
+  // Show shadow at drop position
+  boardShadow.style.left = (dropLeft + 10) + 'px';
+  boardShadow.style.top = (dropTop + 62) + 'px';
   boardShadow.classList.add('visible');
+
+  // Position impact ring at drop point
+  impactRing.style.left = (dropLeft - 8) + 'px';
+  impactRing.style.top = (dropTop + 16) + 'px';
 
   // Bounce animation
   setTimeout(() => {
     knight.style.animation = 'landBounce 0.4s ease forwards';
-  }, 250);
+  }, 100);
 
   // Impact ring
   setTimeout(() => {
     impactRing.classList.add('boom');
-  }, 300);
+  }, 150);
 
-  // Confetti
+  // Confetti from drop point
+  const confettiX = dropLeft + 32;
+  const confettiY = dropTop + 40;
   setTimeout(() => {
-    launchConfetti();
-  }, 400);
+    launchConfetti(confettiX, confettiY);
+  }, 300);
 
   // Reveal prize
   setTimeout(() => {
@@ -530,11 +493,11 @@ document.addEventListener('touchend', onEnd);
 const confettiPieces = [];
 const COLORS = ['#693BF2', '#FF3541', '#FFD700', '#22C55E', '#3B82F6', '#F97316'];
 
-function launchConfetti() {
+function launchConfetti(cx, cy) {
   for (let i = 0; i < 60; i++) {
     confettiPieces.push({
-      x: 160 + (Math.random() - 0.5) * 40,
-      y: 210,
+      x: cx + (Math.random() - 0.5) * 40,
+      y: cy,
       vx: (Math.random() - 0.5) * 8,
       vy: -Math.random() * 10 - 4,
       size: Math.random() * 6 + 3,
