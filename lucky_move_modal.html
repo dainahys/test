@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>행운의 한 수</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    background: #F6F7F9;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* ── Text ── */
+  .text-area {
+    position: absolute;
+    left: 0; right: 0;
+    top: 22px;
+    text-align: center;
+    z-index: 20;
+    transition: all 0.5s ease;
+  }
+  .text-area .subtitle {
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #693BF2;
+  }
+  .text-area .title {
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 32px;
+    letter-spacing: -1px;
+    color: #1C242F;
+    margin-top: 2px;
+  }
+
+  /* ── Chessboard ── */
+  .chessboard {
+    position: absolute;
+    width: 430px;
+    height: 216px;
+    left: calc(50% - 215px);
+    top: 170px;
+    z-index: 1;
+  }
+  .chessboard img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Drop target zone (visual hint) ── */
+  .drop-zone {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    left: calc(50% - 28px);
+    top: 200px;
+    border: 2.5px dashed rgba(105, 59, 242, 0.5);
+    border-radius: 12px;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    background: rgba(105, 59, 242, 0.06);
+  }
+  .drop-zone.visible {
+    opacity: 1;
+    animation: dropPulse 1.2s ease-in-out infinite;
+  }
+  .drop-zone.highlight {
+    border-color: #693BF2;
+    background: rgba(105, 59, 242, 0.15);
+    transform: scale(1.1);
+    animation: none;
+  }
+
+  /* ── Top fade ── */
+  .fade-top {
+    position: absolute;
+    width: 100%;
+    height: 50px;
+    left: 0;
+    top: 168px;
+    background: linear-gradient(180deg, #F6F7F9 5%, rgba(246,247,249,0) 80%);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* ── Knight (draggable) ── */
+  .knight-drag {
+    position: absolute;
+    width: 64px;
+    height: auto;
+    left: calc(50% - 32px);
+    top: 105px;
+    z-index: 30;
+    cursor: grab;
+    touch-action: none;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.25));
+    transition: filter 0.2s ease;
+  }
+  .knight-drag:active { cursor: grabbing; }
+  .knight-drag img {
+    width: 100%;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* Floating animation */
+  .knight-drag.floating {
+    animation: knightFloat 2.5s ease-in-out infinite;
+  }
+  .knight-drag.dragging {
+    animation: none !important;
+    filter: drop-shadow(0 16px 32px rgba(0,0,0,0.35));
+    transform: scale(1.08);
+    transition: filter 0.15s ease, transform 0.15s ease;
+  }
+
+  /* Landed state */
+  .knight-drag.landed {
+    animation: none !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+  }
+
+  /* ── Knight shadow on board ── */
+  .knight-board-shadow {
+    position: absolute;
+    width: 44px;
+    height: 14px;
+    left: calc(50% - 22px);
+    top: 252px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.2);
+    filter: blur(4px);
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .knight-board-shadow.visible {
+    opacity: 1;
+  }
+
+  /* ── Prize reveal overlay ── */
+  .prize-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(246,247,249,0.97);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .prize-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .prize-overlay .prize-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    animation: prizePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    transform: scale(0);
+  }
+  .prize-overlay .prize-title {
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 30px;
+    color: #1C242F;
+    text-align: center;
+    letter-spacing: -0.5px;
+    opacity: 0;
+    animation: fadeUp 0.4s ease forwards 0.3s;
+  }
+  .prize-overlay .prize-desc {
+    font-weight: 500;
+    font-size: 14px;
+    color: #666;
+    margin-top: 6px;
+    opacity: 0;
+    animation: fadeUp 0.4s ease forwards 0.45s;
+  }
+  .prize-overlay .prize-value {
+    font-weight: 800;
+    font-size: 32px;
+    color: #693BF2;
+    margin-top: 16px;
+    opacity: 0;
+    animation: fadeUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.55s;
+  }
+  .prize-overlay .prize-btn {
+    margin-top: 24px;
+    padding: 14px 60px;
+    background: #693BF2;
+    color: #fff;
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    opacity: 0;
+    animation: fadeUp 0.4s ease forwards 0.7s;
+  }
+  .prize-overlay .prize-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* ── Confetti canvas ── */
+  .confetti-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 45;
+    pointer-events: none;
+  }
+
+  /* ── Impact effect ── */
+  .impact-ring {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    left: calc(50% - 40px);
+    top: 206px;
+    border-radius: 50%;
+    border: 3px solid #693BF2;
+    z-index: 35;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .impact-ring.boom {
+    animation: impactBoom 0.5s ease-out forwards;
+  }
+
+  /* ── Noise ── */
+  .noise {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+    z-index: 40;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes knightFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes dropPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+  @keyframes hintPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  @keyframes impactBoom {
+    0% { transform: scale(0.3); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  @keyframes prizePopIn {
+    0% { transform: scale(0) rotate(-20deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes landBounce {
+    0% { transform: scale(1.08) translateY(0); }
+    40% { transform: scale(0.95) translateY(4px); }
+    70% { transform: scale(1.02) translateY(-2px); }
+    100% { transform: scale(1) translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay">
+  <div class="modal" id="modal">
+
+    <!-- Text -->
+    <div class="text-area" id="textArea">
+      <div class="subtitle">원하는 곳에</div>
+      <div class="title">행운의 한 수를<br>둬주세요!</div>
+    </div>
+
+    <!-- Top fade -->
+    <div class="fade-top"></div>
+
+    <!-- Drop zone indicator -->
+    <div class="drop-zone visible" id="dropZone"></div>
+
+    <!-- Knight shadow on board -->
+    <div class="knight-board-shadow" id="boardShadow"></div>
+
+    <!-- Impact ring -->
+    <div class="impact-ring" id="impactRing"></div>
+
+    <!-- Knight (draggable) -->
+    <div class="knight-drag floating" id="knight">
+      <img src="images/knight_real.png" alt="나이트">
+    </div>
+
+    <!-- Chessboard -->
+    <div class="chessboard">
+      <img src="images/chessboard.png" alt="">
+    </div>
+
+    <!-- Confetti -->
+    <canvas class="confetti-canvas" id="confetti"></canvas>
+
+    <!-- Prize reveal -->
+    <div class="prize-overlay" id="prizeOverlay">
+      <div class="prize-icon">🎉</div>
+      <div class="prize-title">행운의 한 수 성공!</div>
+      <div class="prize-desc">당첨을 축하합니다</div>
+      <div class="prize-value" id="prizeValue">숨고페이 5,000원</div>
+      <button class="prize-btn">확인하기</button>
+    </div>
+
+    <!-- Noise -->
+    <div class="noise"></div>
+
+  </div>
+</div>
+
+<script>
+const knight = document.getElementById('knight');
+const dropZone = document.getElementById('dropZone');
+const boardShadow = document.getElementById('boardShadow');
+const impactRing = document.getElementById('impactRing');
+const prizeOverlay = document.getElementById('prizeOverlay');
+const modal = document.getElementById('modal');
+const textArea = document.getElementById('textArea');
+const confettiCanvas = document.getElementById('confetti');
+const ctx = confettiCanvas.getContext('2d');
+
+let isDragging = false;
+let startX, startY, offsetX, offsetY;
+let knightOrigLeft, knightOrigTop;
+let landed = false;
+
+// Init canvas size
+confettiCanvas.width = 320;
+confettiCanvas.height = 320;
+
+// Store original position
+knightOrigLeft = knight.offsetLeft;
+knightOrigTop = knight.offsetTop;
+
+// ── Drag handling ──
+function onStart(e) {
+  if (landed) return;
+  e.preventDefault();
+
+  const pos = getEventPos(e);
+  const rect = knight.getBoundingClientRect();
+  const modalRect = modal.getBoundingClientRect();
+
+  offsetX = pos.x - rect.left;
+  offsetY = pos.y - rect.top;
+  isDragging = true;
+
+  knight.classList.remove('floating');
+  knight.classList.add('dragging');
+  dropZone.classList.add('visible');
+}
+
+function onMove(e) {
+  if (!isDragging || landed) return;
+  e.preventDefault();
+
+  const pos = getEventPos(e);
+  const modalRect = modal.getBoundingClientRect();
+
+  let newLeft = pos.x - modalRect.left - offsetX;
+  let newTop = pos.y - modalRect.top - offsetY;
+
+  // Clamp within modal
+  newLeft = Math.max(-10, Math.min(280, newLeft));
+  newTop = Math.max(0, Math.min(280, newTop));
+
+  knight.style.left = newLeft + 'px';
+  knight.style.top = newTop + 'px';
+
+  // Check proximity to drop zone
+  const dzRect = dropZone.getBoundingClientRect();
+  const knightCenter = {
+    x: pos.x - offsetX + 32,
+    y: pos.y - offsetY + 50
+  };
+  const dzCenter = {
+    x: dzRect.left + dzRect.width / 2,
+    y: dzRect.top + dzRect.height / 2
+  };
+  const dist = Math.hypot(knightCenter.x - dzCenter.x, knightCenter.y - dzCenter.y);
+
+  if (dist < 60) {
+    dropZone.classList.add('highlight');
+  } else {
+    dropZone.classList.remove('highlight');
+  }
+}
+
+function onEnd(e) {
+  if (!isDragging || landed) return;
+  isDragging = false;
+  knight.classList.remove('dragging');
+
+  // Check if dropped on zone
+  const knightRect = knight.getBoundingClientRect();
+  const dzRect = dropZone.getBoundingClientRect();
+  const knightCenter = {
+    x: knightRect.left + knightRect.width / 2,
+    y: knightRect.top + knightRect.height / 2
+  };
+  const dzCenter = {
+    x: dzRect.left + dzRect.width / 2,
+    y: dzRect.top + dzRect.height / 2
+  };
+  const dist = Math.hypot(knightCenter.x - dzCenter.x, knightCenter.y - dzCenter.y);
+
+  if (dist < 65) {
+    landKnight();
+  } else {
+    // Snap back
+    knight.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    knight.style.left = knightOrigLeft + 'px';
+    knight.style.top = knightOrigTop + 'px';
+    setTimeout(() => {
+      knight.style.transition = '';
+      knight.classList.add('floating');
+    }, 400);
+  }
+
+  dropZone.classList.remove('highlight');
+}
+
+function landKnight() {
+  landed = true;
+
+  // Snap to drop zone center
+  const dzLeft = parseInt(dropZone.style.left || getComputedStyle(dropZone).left);
+  const dzTop = parseInt(dropZone.style.top || getComputedStyle(dropZone).top);
+
+  knight.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  knight.style.left = (160 - 32) + 'px';
+  knight.style.top = '192px';
+  knight.classList.add('landed');
+
+  // Hide drop zone
+  dropZone.style.opacity = '0';
+
+  // Show shadow
+  boardShadow.classList.add('visible');
+
+  // Bounce animation
+  setTimeout(() => {
+    knight.style.animation = 'landBounce 0.4s ease forwards';
+  }, 250);
+
+  // Impact ring
+  setTimeout(() => {
+    impactRing.classList.add('boom');
+  }, 300);
+
+  // Confetti
+  setTimeout(() => {
+    launchConfetti();
+  }, 400);
+
+  // Reveal prize
+  setTimeout(() => {
+    prizeOverlay.classList.add('show');
+  }, 1200);
+}
+
+function getEventPos(e) {
+  if (e.touches) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  return { x: e.clientX, y: e.clientY };
+}
+
+// Events
+knight.addEventListener('mousedown', onStart);
+knight.addEventListener('touchstart', onStart, { passive: false });
+document.addEventListener('mousemove', onMove);
+document.addEventListener('touchmove', onMove, { passive: false });
+document.addEventListener('mouseup', onEnd);
+document.addEventListener('touchend', onEnd);
+
+// ── Confetti ──
+const confettiPieces = [];
+const COLORS = ['#693BF2', '#FF3541', '#FFD700', '#22C55E', '#3B82F6', '#F97316'];
+
+function launchConfetti() {
+  for (let i = 0; i < 60; i++) {
+    confettiPieces.push({
+      x: 160 + (Math.random() - 0.5) * 40,
+      y: 210,
+      vx: (Math.random() - 0.5) * 8,
+      vy: -Math.random() * 10 - 4,
+      size: Math.random() * 6 + 3,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12,
+      gravity: 0.18 + Math.random() * 0.08,
+      life: 1
+    });
+  }
+  animateConfetti();
+}
+
+function animateConfetti() {
+  ctx.clearRect(0, 0, 320, 320);
+  let alive = false;
+
+  confettiPieces.forEach(p => {
+    if (p.life <= 0) return;
+    alive = true;
+
+    p.x += p.vx;
+    p.vy += p.gravity;
+    p.y += p.vy;
+    p.rotation += p.rotSpeed;
+    p.vx *= 0.98;
+    p.life -= 0.008;
+
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation * Math.PI / 180);
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+    ctx.restore();
+  });
+
+  if (alive) requestAnimationFrame(animateConfetti);
+}
+</script>
+
+</body>
+</html>
