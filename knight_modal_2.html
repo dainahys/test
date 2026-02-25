@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>푸시 허용 모달</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+
+  /* ── Modal 320×320 ── */
+  .modal {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    background: #F6F7F9;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* ── Text (left-aligned) ── */
+  .text-area {
+    position: absolute;
+    left: 30px;
+    top: 20px;
+    z-index: 20;
+  }
+  .text-area .subtitle {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+    color: #FE666E;
+  }
+  .text-area .title {
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 36px;
+    letter-spacing: -1px;
+    color: #1C242F;
+    margin-top: 2px;
+  }
+
+  /* ── Knight (right side, trembling) ── */
+  .knight-wrap {
+    position: absolute;
+    right: 20px;
+    top: 46px;
+    width: 58px;
+    z-index: 15;
+  }
+  .knight-wrap img {
+    width: 100%;
+    display: block;
+    animation: tremble 0.15s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+  }
+
+  /* 땀방울 */
+  .sweat {
+    position: absolute;
+    top: 18px;
+    right: -4px;
+    font-size: 16px;
+    animation: sweatDrop 1.2s ease-in infinite;
+    opacity: 0;
+    z-index: 16;
+  }
+
+  /* ── Chessboard ── */
+  .chessboard {
+    position: absolute;
+    width: 430px;
+    height: 216px;
+    left: calc(50% - 215px);
+    top: 162px;
+    z-index: 1;
+  }
+  .chessboard img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Top fade ── */
+  .fade-top {
+    position: absolute;
+    width: 100%;
+    height: 55px;
+    left: 0;
+    top: 162px;
+    background: linear-gradient(180deg, #F6F7F9 5.83%, rgba(246,247,249,0) 80.09%);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* ── Noise overlay ── */
+  .noise {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+    z-index: 18;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* ── CTA ── */
+  .cta-area {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 20;
+  }
+  .cta-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 48px;
+    background: #693BF2;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cta-btn:active {
+    transform: scale(0.98);
+    filter: brightness(0.92);
+  }
+  .cta-btn .label {
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+    color: #FFFFFF;
+    text-align: center;
+  }
+
+  /* ── Animations ── */
+
+  /* 부들부들 떨림 */
+  @keyframes tremble {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    20%  { transform: translate(-1.2px, 0.5px) rotate(-0.8deg); }
+    40%  { transform: translate(1px, -0.5px) rotate(0.6deg); }
+    60%  { transform: translate(-0.8px, 0.8px) rotate(-0.5deg); }
+    80%  { transform: translate(1.2px, -0.3px) rotate(0.8deg); }
+    100% { transform: translate(-0.5px, 0.5px) rotate(-0.3deg); }
+  }
+
+  /* 땀 떨어짐 */
+  @keyframes sweatDrop {
+    0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+    15%  { opacity: 1; transform: translateY(0) scale(1); }
+    80%  { opacity: 0.6; transform: translateY(18px) scale(0.7); }
+    100% { opacity: 0; transform: translateY(26px) scale(0.4); }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay">
+  <div class="modal">
+
+    <!-- Text -->
+    <div class="text-area">
+      <div class="subtitle">기기 앱 푸시가 꺼져있어요</div>
+      <div class="title">알림을 켜야<br>참여할 수<br>있어요!</div>
+    </div>
+
+    <!-- Knight (trembling) -->
+    <div class="knight-wrap">
+      <img src="images/knight_real_2.png" alt="">
+      <div class="sweat">💧</div>
+    </div>
+
+    <!-- Top fade -->
+    <div class="fade-top"></div>
+
+    <!-- Chessboard -->
+    <div class="chessboard">
+      <img src="images/chessboard.png" alt="">
+    </div>
+
+    <!-- Noise -->
+    <div class="noise"></div>
+
+    <!-- CTA -->
+    <div class="cta-area">
+      <button class="cta-btn">
+        <span class="label">알림 허용하기</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
